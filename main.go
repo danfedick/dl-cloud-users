@@ -69,13 +69,13 @@ func main() {
 		userid UUID,
 		address TEXT,
 		phone TEXT,
-		ua TEXT,
+		useragent TEXT,
 		company TEXT,
 		email TEXT,
 		team TEXT,
 		location TEXT,
-		cc TEXT,
-		ssn TEXT
+		creditcard TEXT,
+		socialsecurity TEXT
 	)`)
 	if err != nil {
 		log.Fatal(err)
@@ -84,7 +84,7 @@ func main() {
 	// Insert users into the database
 	for _, user := range users {
 		_, err := db.Exec(`INSERT INTO users (
-			name,  userid, address, phone, ua, company, email, team, location, cc, ssn
+			name,  userid, address, phone, useragent, company, email, team, location, creditcard, socialsecurity
 		) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`,
 			user.Name, user.UserID, user.Address, user.Phone, user.UserAgent, user.Company, user.Email, user.Team, user.Location, user.CreditCard, user.SocialSecurity)
 		if err != nil {

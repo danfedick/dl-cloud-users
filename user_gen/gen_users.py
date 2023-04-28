@@ -15,13 +15,13 @@ for _ in range(50):
         "userid": fake.uuid4(),
         "address": fake.address().replace("\n", ", "),
         "phone": fake.phone_number(),
-        "ua": fake.user_agent(),
+        "useragent": fake.user_agent(),
         "company": "OpenGovCo",
         "email": fake.email(),
         "team": random.choice(job_types),
         "location": fake.city(),
-        "cc": fake.credit_card_number(card_type='mastercard'),
-        "ssn": fake.ssn(),
+        "creditcard": fake.credit_card_number(card_type='mastercard'),
+        "socialsecurity": fake.ssn(),
     }
     users.append(user)
 
