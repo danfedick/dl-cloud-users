@@ -85,7 +85,7 @@ func main() {
 	for _, user := range users {
 		_, err := db.Exec(`INSERT INTO users (
 			name, username, userid, user_agent, address, phone, email, team, location, credit_card, social_security
-		) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
+		) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)`,
 			user.Name, user.Username, user.UserID, user.UserAgent, user.Address, user.Phone, user.Email, user.Team, user.Location, user.CreditCard, user.SocialSecurity)
 		if err != nil {
 			log.Fatal(err)
