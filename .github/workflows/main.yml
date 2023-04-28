@@ -32,11 +32,13 @@ jobs:
           GOOS=linux go build -o dataloader-linux *.go
           cd dataviewer
           GOOS=linux go build -o dataviewer-linux *.go
+
       - name: Build for Mac Darwin
         run: |
           GOOS=darwin go build -o dataloader-darwin *.go
           cd dataviewer
           GOOS=linux go build -o dataviewer-darwin *.go
+
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
@@ -51,6 +53,7 @@ jobs:
             ${{ join(github.event.commits.*.message, '\n- ') }}
           draft: false
           prerelease: false
+
       - name: Upload Linux Binary
         uses: actions/upload-release-asset@v1
         env:
@@ -60,15 +63,17 @@ jobs:
           asset_path: ./dataloader-linux
           asset_name: dataloader-linux
           asset_content_type: application/octet-stream
+
       - name: Upload Viewer Linux Binary
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./dataviewer/dataloader-linux
+          asset_path: ./dataviewer/dataviewer-linux
           asset_name: dataviewer-linux
           asset_content_type: application/octet-stream
+
       - name: Upload Darwin Binary
         uses: actions/upload-release-asset@v1
         env:
@@ -78,6 +83,7 @@ jobs:
           asset_path: ./dataloader-darwin
           asset_name: dataloader-darwin
           asset_content_type: application/octet-stream
+
       - name: Upload Viewer Darwin Binary
         uses: actions/upload-release-asset@v1
         env:
