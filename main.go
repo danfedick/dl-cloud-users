@@ -13,11 +13,11 @@ import (
 
 type User struct {
 	Name           string
-	Username       string
 	UserID         string
-	UserAgent      string
 	Address        string
 	Phone          string
+	UserAgent      string
+	Company        string
 	Email          string
 	Team           string
 	Location       string
@@ -66,11 +66,11 @@ func main() {
 	_, err = db.Exec(`CREATE TABLE IF NOT EXISTS users (
 		id SERIAL PRIMARY KEY,
 		name TEXT,
-		username TEXT,
 		userid UUID,
-		user_agent TEXT,
 		address TEXT,
 		phone TEXT,
+		user_agent TEXT,
+		company TEXT,
 		email TEXT,
 		team TEXT,
 		location TEXT,
@@ -84,9 +84,9 @@ func main() {
 	// Insert users into the database
 	for _, user := range users {
 		_, err := db.Exec(`INSERT INTO users (
-			name, username, userid, user_agent, address, phone, email, team, location, credit_card, social_security
-		) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)`,
-			user.Name, user.Username, user.UserID, user.UserAgent, user.Address, user.Phone, user.Email, user.Team, user.Location, user.CreditCard, user.SocialSecurity)
+			name,  userid, user_agent, address, phone, email, team, location, credit_card, social_security
+		) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
+			user.Name, user.UserID, user.Address, user.Phone, user.UserAgent, user.Company, user.Email, user.Team, user.Location, user.CreditCard, user.SocialSecurity)
 		if err != nil {
 			log.Fatal(err)
 		}
