@@ -15,6 +15,7 @@ type User struct {
 	Name           string
 	Username       string
 	UserID         string
+	UserAgent      string
 	Address        string
 	Phone          string
 	Email          string
@@ -67,6 +68,7 @@ func main() {
 		name TEXT,
 		username TEXT,
 		userid UUID,
+		user_agent TEXT,
 		address TEXT,
 		phone TEXT,
 		email TEXT,
@@ -82,9 +84,9 @@ func main() {
 	// Insert users into the database
 	for _, user := range users {
 		_, err := db.Exec(`INSERT INTO users (
-			name, username, userid, address, phone, email, team, location, credit_card, social_security
+			name, username, userid, user_agent, address, phone, email, team, location, credit_card, social_security
 		) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
-			user.Name, user.Username, user.UserID, user.Address, user.Phone, user.Email, user.Team, user.Location, user.CreditCard, user.SocialSecurity)
+			user.Name, user.Username, user.UserID, user.UserAgent, user.Address, user.Phone, user.Email, user.Team, user.Location, user.CreditCard, user.SocialSecurity)
 		if err != nil {
 			log.Fatal(err)
 		}
