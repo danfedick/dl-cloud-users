@@ -12,7 +12,7 @@ users = []
 for _ in range(50):
     user = {
         "name": fake.name(),
-        "uuid": fake.uuid4(),
+        "userid": fake.uuid4(),
         "address": fake.address().replace("\n", ", "),
         "phone": fake.phone_number(),
         "user_agent": fake.user_agent(),
