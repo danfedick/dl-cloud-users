@@ -27,11 +27,11 @@ type User struct {
 
 func main() {
 	// Define flag arguments
-	filePtr := flag.String("f", "", "Path to the users JSON file (required)")
-	dbNamePtr := flag.String("db", "", "Database name (required)")
-	hostPtr := flag.String("host", "", "Database host (required)")
-	portPtr := flag.String("p", "", "Database port (required)")
-	passwordPtr := flag.String("P", "", "Database password (required)")
+	filePtr := flag.String("file", "", "Path to the users JSON file (required)")
+	dbNamePtr := flag.String("database", "", "Database name (required)")
+	hostPtr := flag.String("hostname", "", "Database host (required)")
+	portPtr := flag.String("port", "", "Database port (required)")
+	passwordPtr := flag.String("password", "", "Database password (required)")
 
 	// Parse flag arguments
 	flag.Parse()
@@ -84,8 +84,8 @@ func main() {
 	// Insert users into the database
 	for _, user := range users {
 		_, err := db.Exec(`INSERT INTO users (
-			name,  userid, user_agent, address, phone, email, team, location, credit_card, social_security
-		) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
+			name,  userid, address, phone, user_agent, company, email, team, location, credit_card, social_security
+		) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`,
 			user.Name, user.UserID, user.Address, user.Phone, user.UserAgent, user.Company, user.Email, user.Team, user.Location, user.CreditCard, user.SocialSecurity)
 		if err != nil {
 			log.Fatal(err)
