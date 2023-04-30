@@ -63,6 +63,7 @@ func getUser(dbName, host, port, password string) (*User, error) {
 
 	var user User
 	err = db.QueryRow("SELECT * FROM users LIMIT 1").Scan(
+		&user.ID,
 		&user.Name,
 		&user.UserID,
 		&user.Address,
