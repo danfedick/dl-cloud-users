@@ -13,7 +13,7 @@ import (
 type User struct {
 	ID             string `json:"id"`
 	Name           string `json:"name"`
-	UserID         int    `json:"user_id"`
+	UserID         string `json:"user_id"`
 	Address        string `json:"address"`
 	Phone          string `json:"phone"`
 	UserAgent      string `json:"user_agent"`
