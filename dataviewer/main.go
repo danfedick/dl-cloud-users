@@ -5,7 +5,9 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	"math/rand"
 	"net/http"
+	"time"
 
 	_ "github.com/lib/pq"
 )
@@ -33,14 +35,16 @@ func main() {
 
 	flag.Parse()
 
+	rand.Seed(time.Now().UnixNano())
+
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		user, err := getUser(*dbNamePtr, *hostPtr, *portPtr, *passwordPtr)
+		user, err := getRandomUser(*dbNamePtr, *hostPtr, *portPtr, *passwordPtr)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 
-		userJSON, err := json.Marshal(user)
+		userJSON, err := json.MarshalIndent(user, "", " ")
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
@@ -53,7 +57,7 @@ func main() {
 	http.ListenAndServe(":8888", nil)
 }
 
-func getUser(dbName, host, port, password string) (*User, error) {
+func getRandomUser(dbName, host, port, password string) (*User, error) {
 	connStr := fmt.Sprintf("dbname=%s host=%s port=%s password=%s sslmode=disable", dbName, host, port, password)
 	db, err := sql.Open("postgres", connStr)
 	if err != nil {
@@ -62,28 +66,12 @@ func getUser(dbName, host, port, password string) (*User, error) {
 	defer db.Close()
 
 	var user User
-	err = db.QueryRow("SELECT * FROM users LIMIT 1").Scan(
-		&user.ID,
-		&user.Name,
-		&user.UserID,
-		&user.Address,
-		&user.Phone,
-		&user.UserAgent,
-		&user.Company,
-		&user.Email,
-		&user.Team,
-		&user.Location,
-		&user.CreditCard,
-		&user.SocialSecurity,
-	)
+
+	err = db.QueryRow("SELECT * FROM users ORDER BY random() LIMIT 1").Scan(&user.ID, &user.Name, &user.UserID, &user.Address, &user.Phone, &user.UserAgent, &user.Company, &user.Email, &user.Team, &user.Location, &user.CreditCard, &user.SocialSecurity)
+
 	if err != nil {
 		return nil, err
 	}
-
-	user.Name = fmt.Sprintf("<b>%s</b>", user.Name)
-	user.CreditCard = fmt.Sprintf("<span style='color:green'>%s</span>", user.CreditCard)
-	user.SocialSecurity = fmt.Sprintf("<span style='color:green'>%s</span>", user.SocialSecurity)
-	user.Phone = fmt.Sprintf("<span style='color:green'>%s</span>", user.Phone)
 
 	return &user, nil
 }
