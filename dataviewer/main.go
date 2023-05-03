@@ -5,9 +5,13 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	"io/ioutil"
+	"log"
 	"math/rand"
 	"net/http"
 	"time"
+
+	"gopkg.in/yaml.v2"
 
 	_ "github.com/lib/pq"
 )
@@ -27,51 +31,67 @@ type User struct {
 	SocialSecurity string `json:"social_security"`
 }
 
-func main() {
-	dbNamePtr := flag.String("database", "", "Database name (required)")
-	hostPtr := flag.String("hostname", "", "Database host (required)")
-	portPtr := flag.String("port", "", "Database port (required)")
-	passwordPtr := flag.String("password", "", "Database password (required)")
+type Config struct {
+	Username string `yaml:"username"`
+	Password string `yaml:"password"`
+	Host     string `yaml:"host"`
+	Port     int    `yaml:"port"`
+	DBName   string `yaml:"dbName"`
+	WebPort  int    `yaml:"webPort"`
+}
 
+func getRandomUser(db *sql.DB) (User, error) {
+	var user User
+	err := db.QueryRow("SELECT * FROM users ORDER BY random() LIMIT 1").Scan(&user.ID, &user.Name, &user.UserID, &user.Address, &user.Phone, &user.UserAgent, &user.Company, &user.Email, &user.Team, &user.Location, &user.CreditCard, &user.SocialSecurity)
+	return user, err
+}
+
+func handleRequest(w http.ResponseWriter, r *http.Request, db *sql.DB) {
+	user, err := getRandomUser(db)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	userJSON, err := json.MarshalIndent(user, "", " ")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(userJSON)
+}
+
+func main() {
+	configFilePtr := flag.String("config-file", "", "Path to the configuration file.")
 	flag.Parse()
+
+	configData, err := ioutil.ReadFile(*configFilePtr)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	var config Config
+	err = yaml.Unmarshal(configData, &config)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 
 	rand.Seed(time.Now().UnixNano())
 
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		user, err := getRandomUser(*dbNamePtr, *hostPtr, *portPtr, *passwordPtr)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-
-		userJSON, err := json.MarshalIndent(user, "", " ")
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-
-		w.Header().Set("Content-Type", "application/json")
-		w.Write(userJSON)
-	})
-
-	http.ListenAndServe(":8888", nil)
-}
-
-func getRandomUser(dbName, host, port, password string) (*User, error) {
-	connStr := fmt.Sprintf("dbname=%s host=%s port=%s password=%s sslmode=disable", dbName, host, port, password)
+	connStr := fmt.Sprintf("dbname=%s host=%s port=%d user=%s password=%s sslmode=disable", config.DBName, config.Host, config.Port, config.Username, config.Password)
 	db, err := sql.Open("postgres", connStr)
 	if err != nil {
-		return nil, err
+		fmt.Println(err)
+		return
 	}
 	defer db.Close()
 
-	var user User
-
-	err = db.QueryRow("SELECT * FROM users ORDER BY random() LIMIT 1").Scan(&user.ID, &user.Name, &user.UserID, &user.Address, &user.Phone, &user.UserAgent, &user.Company, &user.Email, &user.Team, &user.Location, &user.CreditCard, &user.SocialSecurity)
-
-	if err != nil {
-		return nil, err
-	}
-
-	return &user, nil
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		handleRequest(w, r, db)
+	})
+	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", config.WebPort), nil))
 }
