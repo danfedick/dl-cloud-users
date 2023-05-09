@@ -40,11 +40,6 @@ type Config struct {
 	WebPort  int    `yaml:"webPort"`
 }
 
-func healthCheck(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("OK"))
-}
-
 func getRandomUser(db *sql.DB) (User, error) {
 	var user User
 	err := db.QueryRow("SELECT * FROM users ORDER BY random() LIMIT 1").Scan(&user.ID, &user.Name, &user.UserID, &user.Address, &user.Phone, &user.UserAgent, &user.Company, &user.Email, &user.Team, &user.Location, &user.CreditCard, &user.SocialSecurity)
@@ -98,10 +93,5 @@ func main() {
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		handleRequest(w, r, db)
 	})
-
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		handleRequest(w, r, db)
-	})
-	http.HandleFunc("/health", healthCheck) // Add this line to register the health check handler
 	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", config.WebPort), nil))
 }
