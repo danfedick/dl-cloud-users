@@ -12,17 +12,10 @@ import (
 )
 
 type User struct {
-	Name           string
-	UserID         string
-	Address        string
-	Phone          string
-	UserAgent      string
-	Company        string
-	Email          string
-	Team           string
-	Location       string
-	CreditCard     string
-	SocialSecurity string
+	Username          string `json:"username"`
+	Groupname         string `json:"groupname"`
+	AzureSubscription string `json:"azure_subscription_id"`
+	AwsAccount        string `json:"aws_account_id"`
 }
 
 func main() {
@@ -64,19 +57,12 @@ func main() {
 
 	// Create the users table
 	_, err = db.Exec(`CREATE TABLE IF NOT EXISTS users (
-		id SERIAL PRIMARY KEY,
-		name TEXT,
-		userid UUID,
-		address TEXT,
-		phone TEXT,
-		useragent TEXT,
-		company TEXT,
-		email TEXT,
-		team TEXT,
-		location TEXT,
-		creditcard TEXT,
-		socialsecurity TEXT
-	)`)
+        id SERIAL PRIMARY KEY,
+        username TEXT,
+        groupname TEXT,
+        azure_subscription_id TEXT,
+        aws_account_id TEXT
+    )`)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -84,9 +70,9 @@ func main() {
 	// Insert users into the database
 	for _, user := range users {
 		_, err := db.Exec(`INSERT INTO users (
-			name,  userid, address, phone, useragent, company, email, team, location, creditcard, socialsecurity
-		) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`,
-			user.Name, user.UserID, user.Address, user.Phone, user.UserAgent, user.Company, user.Email, user.Team, user.Location, user.CreditCard, user.SocialSecurity)
+            username, groupname, azure_subscription_id, aws_account_id
+        ) VALUES ($1, $2, $3, $4)`,
+			user.Username, user.Groupname, user.AzureSubscription, user.AwsAccount)
 		if err != nil {
 			log.Fatal(err)
 		}
